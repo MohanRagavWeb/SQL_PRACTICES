@@ -12,8 +12,9 @@ INSERT INTO Students VALUES
 
 COMMIT;
 
--- Data is now permanently stored
-SELECT * FROM Students;
+-- Verify commit
+SELECT * FROM Students
+WHERE StudentId = 10;
 
 ----------------------------------------------------
 -- Example 2: ROLLBACK
@@ -27,30 +28,38 @@ INSERT INTO Students VALUES
 -- Undo the insert
 ROLLBACK;
 
--- Record will NOT be present
-SELECT * FROM Students;
+-- Verify rollback (no record)
+SELECT * FROM Students
+WHERE StudentId = 11;
 
 ----------------------------------------------------
--- Example 3: SAVEPOINT
+-- Example 3: SAVE TRANSACTION (SAVEPOINT)
 -- Partial rollback
 ----------------------------------------------------
 BEGIN TRANSACTION;
 
+-- First insert
 INSERT INTO Students VALUES
 (12, 'Sneha', 'CSE', 88, 1);
-SAVEPOINT SP1;
 
+-- Savepoint
+SAVE TRANSACTION SP1;
+
+-- Second insert
 INSERT INTO Students VALUES
 (13, 'Amit', 'MECH', 70, 3);
-SAVEPOINT SP2;
 
--- Rollback only second insert
+-- Savepoint
+SAVE TRANSACTION SP2;
+
+-- Rollback only to SP1 (undo Amit insert)
 ROLLBACK TRANSACTION SP1;
 
--- Only Sneha record remains
-SELECT * FROM Students;
+-- Verify partial rollback
+SELECT * FROM Students
+WHERE StudentId IN (12, 13);
 
 ----------------------------------------------------
--- Example 4: Commit after savepoint rollback
+-- Commit remaining changes
 ----------------------------------------------------
 COMMIT;
